@@ -1,5 +1,8 @@
+import 'dart:io';
+
 import 'package:chat_app/common.dart';
 import 'package:chat_app/widgets/image_picker.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
@@ -13,15 +16,15 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
-  final currentUser = FirebaseAuth.instance.currentUser;
-
+  final user = FirebaseAuth.instance.currentUser;
+  File? dpImage;
   TextEditingController nameController = TextEditingController();
 
   @override
   void initState() {
-    if (currentUser != null) {
-      final name = currentUser!.displayName;
-      nameController.text = name!;
+    if (user != null) {
+      String name = user?.displayName ?? '';
+      nameController.text = name;
     }
     super.initState();
   }
@@ -39,7 +42,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   width: 150,
                   child: InkWell(
                     onTap: () {
-                      // getImageFromGallery(context);
+                      getImageFromCamera(context);
                     },
                     child: Stack(
                       children: [
@@ -108,9 +111,14 @@ class _ProfilePageState extends State<ProfilePage> {
                 height: 50,
                 child: ElevatedButton(
                     onPressed: () async {
-                      currentUser?.updateDisplayName(nameController.text);
-                      print('update ${nameController.text}');
-                      // await refreshUser();
+                      await FirebaseFirestore.instance
+                          .collection('Users')
+                          .doc('${FirebaseAuth.instance.currentUser?.uid}')
+                          .update(
+                              {'UserDetails.name': '${nameController.text}'});
+
+                      user?.updateDisplayName(nameController.text);
+
                       Navigator.pushNamed(context, '/Home');
                     },
                     style: ElevatedButton.styleFrom(

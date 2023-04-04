@@ -13,7 +13,6 @@ class RegisterPage extends StatefulWidget {
 }
 
 class _RegisterPageState extends State<RegisterPage> {
-  TextEditingController usernameController = TextEditingController();
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
   String emailWarning = '';
@@ -43,36 +42,6 @@ class _RegisterPageState extends State<RegisterPage> {
                 child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        'Username',
-                        style: TextStyle(color: mainRedColor),
-                      ),
-                      SizedBox(height: 10),
-                      Container(
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(10),
-                            color: Colors.white,
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.only(left: 15, right: 15),
-                            child: TextFormField(
-                              onTap: () {
-                                setState(() {
-                                  usernameWarning = '';
-                                });
-                              },
-                              controller: usernameController,
-                              cursorHeight: 25,
-                              cursorColor: mainRedColor,
-                              decoration:
-                                  InputDecoration(border: InputBorder.none),
-                            ),
-                          )),
-                      Text(
-                        usernameWarning,
-                        style: TextStyle(color: Colors.red),
-                      ),
-                      SizedBox(height: 25),
                       Text(
                         'E-mail',
                         style: TextStyle(color: mainRedColor),
@@ -147,20 +116,12 @@ class _RegisterPageState extends State<RegisterPage> {
                               setState(() {
                                 String email = emailController.text;
                                 String password = passwordController.text;
-                                String username = usernameController.text;
+
                                 bool validationSuccess = true;
                                 if (email == null ||
                                     email == '' ||
                                     email.isEmpty) {
                                   emailWarning = 'Please enter an email';
-
-                                  validationSuccess = false;
-                                }
-
-                                if (username == null ||
-                                    username == '' ||
-                                    username.isEmpty) {
-                                  usernameWarning = 'Please enter a username';
 
                                   validationSuccess = false;
                                 }
@@ -187,11 +148,6 @@ class _RegisterPageState extends State<RegisterPage> {
                                     emailController.text != '' &&
                                     passwordController.text != '') {
                                   try {
-                                    final user = FirebaseAuth.instance
-                                        .createUserWithEmailAndPassword(
-                                            email: emailController.text,
-                                            password: passwordController.text);
-
                                     FirebaseAuth.instance
                                         .authStateChanges()
                                         .listen((User? user) {
@@ -202,7 +158,10 @@ class _RegisterPageState extends State<RegisterPage> {
                                         }));
                                       }
                                     });
-                                  } catch (e) {}
+                                  } catch (e) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                        SnackBar(content: Text('${e}')));
+                                  }
                                 }
                               });
                             },

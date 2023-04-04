@@ -1,4 +1,5 @@
 import 'package:chat_app/common.dart';
+import 'package:chat_app/screens/email_verification_page.dart';
 import 'package:chat_app/screens/home_page.dart';
 import 'package:chat_app/screens/register_page.dart';
 import 'package:chat_app/screens/test_page.dart';
@@ -155,9 +156,9 @@ class _EmailLoginPageState extends State<EmailLoginPage> {
     );
   }
 
-  login(context, email, password) async {
+  login(context, String email, String password) async {
     bool validationSuccess = true;
-    if (email == null || email == '') {
+    if (email == '') {
       setState(() {
         emailWarning = 'Please enter an email';
       });
@@ -171,45 +172,48 @@ class _EmailLoginPageState extends State<EmailLoginPage> {
       validationSuccess = false;
     }
 
-    if (password == null || password == '') {
+    if (password == '' || password.isEmpty) {
       setState(() {
         passwordWarning = 'Please enter your password';
       });
       validationSuccess = false;
     }
 
-    if (validationSuccess = true) {
+    if (validationSuccess == true) {
       try {
         final currentUser = await FirebaseAuth.instance
             .signInWithEmailAndPassword(email: email, password: password);
+      } catch (e) {
+        print(e);
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text("User Id and Password doesn't exist")));
+      }
 
-        FirebaseAuth.instance.authStateChanges().listen((User? user) {
-          if (user != null) {
-            if (user.emailVerified) {
-              Navigator.of(context).push(MaterialPageRoute(builder: (ctx) {
-                return Home();
-              }));
-              // currentUser = user;
-            } else {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text("Email is not verified"),
-                ),
-              );
-              user.sendEmailVerification();
-            }
+      FirebaseAuth.instance.authStateChanges().listen((User? user) {
+        if (user != null) {
+          if (user.emailVerified) {
+            Navigator.of(context).push(MaterialPageRoute(builder: (ctx) {
+              return Home();
+            }));
+            // currentUser = user;
           } else {
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text("User Id and Password didn't match"),
+              const SnackBar(
+                content: Text("Email is not verified"),
               ),
             );
+            Navigator.of(context).push(MaterialPageRoute(builder: (ctx) {
+              return const EmailVerificationPage();
+            }));
           }
-        });
-      } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text("User Id and Password didn't match")));
-      }
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text("Try Again"),
+            ),
+          );
+        }
+      });
     }
   }
 }

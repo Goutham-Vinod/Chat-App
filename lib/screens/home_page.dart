@@ -34,7 +34,7 @@ class Home extends StatelessWidget {
           ),
         ),
         actions: [
-          IconButton(onPressed: () {}, icon: Icon(Icons.search)),
+          // IconButton(onPressed: () {}, icon: Icon(Icons.search)),
           ThreeDot(),
         ],
       ),
@@ -56,27 +56,27 @@ class Home extends StatelessWidget {
               return ListView.builder(
                 itemCount: streamSnapshot.data?.docs.length,
                 itemBuilder: (context, index) {
-                  //  if (documentIds[index] != user?.uid) {
+                  if (documentIds[index] != user?.uid) {
+                    return CustomListTile(
+                      title: streamSnapshot.data?.docs[index]
+                          .data()['UserDetails']['name'],
+                      subtitle: '',
+                      onTapFunction: () {
+                        FriendDetails friend = FriendDetails(
+                            friendId: streamSnapshot.data?.docs[index].id ?? '',
+                            friendName: streamSnapshot.data?.docs[index]
+                                .data()['UserDetails']['name']);
 
-                  return CustomListTile(
-                    title: streamSnapshot.data?.docs[index]
-                        .data()['UserDetails']['name'],
-                    subtitle: streamSnapshot.data?.docs[index]
-                        .data()['UserDetails']['subtitle'],
-                    onTapFunction: () {
-                      FriendDetails friend = FriendDetails(
-                          friendId: streamSnapshot.data?.docs[index].id ?? '',
-                          friendName: streamSnapshot.data?.docs[index]
-                              .data()['UserDetails']['name']);
-
-                      Navigator.of(context)
-                          .push(MaterialPageRoute(builder: (ctx) {
-                        return ChatPage(friend: friend);
-                      }));
-                    },
-                    unReadMsgCount: 15,
-                  );
-                  // }
+                        Navigator.of(context)
+                            .push(MaterialPageRoute(builder: (ctx) {
+                          return ChatPage(friend: friend);
+                        }));
+                      },
+                      unReadMsgCount: 15,
+                    );
+                  } else {
+                    return Text('');
+                  }
                 },
               );
             } else {

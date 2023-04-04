@@ -43,7 +43,6 @@ class _ChatPageState extends State<ChatPage> {
             style: TextStyle(
                 color: mainRedColor, fontSize: 25, fontWeight: FontWeight.bold),
           ),
-          actions: [IconButton(onPressed: () {}, icon: Icon(Icons.search))],
         ),
         body: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -62,7 +61,7 @@ class _ChatPageState extends State<ChatPage> {
                 }
                 if (streamSnapshot.hasData) {
                   print('has data');
-                  ///////////////////////////////////////////
+
                   List msgs = [];
                   try {
                     msgs = streamSnapshot.data?.get(widget.friend.friendId);
@@ -88,19 +87,19 @@ class _ChatPageState extends State<ChatPage> {
               },
             ),
             Padding(
-              padding: const EdgeInsets.all(30.0),
+              padding: EdgeInsets.all(MediaQuery.of(context).size.width * 0.08),
               child: Container(
                 decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(20)),
                 height: 55,
-                width: 500,
+                width: MediaQuery.of(context).size.width * 0.9,
                 child: SizedBox(
                     child: Row(
                   children: [
-                    SizedBox(width: 30),
+                    SizedBox(width: MediaQuery.of(context).size.width * 0.02),
                     SizedBox(
-                      width: 250,
+                      width: MediaQuery.of(context).size.width * 0.68,
                       child: TextField(
                         controller: msgController,
                         decoration: InputDecoration(border: InputBorder.none),

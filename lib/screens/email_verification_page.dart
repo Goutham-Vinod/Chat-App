@@ -7,14 +7,9 @@ import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/src/widgets/placeholder.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-class EmailVerificationPage extends StatefulWidget {
+class EmailVerificationPage extends StatelessWidget {
   const EmailVerificationPage({super.key});
 
-  @override
-  State<EmailVerificationPage> createState() => _EmailVerificationPageState();
-}
-
-class _EmailVerificationPageState extends State<EmailVerificationPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -28,7 +23,7 @@ class _EmailVerificationPageState extends State<EmailVerificationPage> {
               color: Color.fromARGB(255, 158, 158, 158).withOpacity(0.1),
               spreadRadius: 5,
               blurRadius: 7,
-              offset: Offset(0, 3),
+              offset: const Offset(0, 3),
             )
           ], color: Colors.white, borderRadius: BorderRadius.circular(10)),
           child: Column(
@@ -45,7 +40,7 @@ class _EmailVerificationPageState extends State<EmailVerificationPage> {
               SizedBox(
                 width: 300,
                 child: Text(
-                  'Please verify your Gmail by follow the link sent to your E-mail.',
+                  'Please verify your Gmail by following the link sent to your E-mail.',
                   textAlign: TextAlign.center,
                 ),
               ),
@@ -70,7 +65,7 @@ class _EmailVerificationPageState extends State<EmailVerificationPage> {
                         }
                       });
                     },
-                    child: Text('Verify my account'),
+                    child: Text('Sent verificaton link'),
                   )),
               SizedBox(
                   width: 300,
@@ -81,35 +76,36 @@ class _EmailVerificationPageState extends State<EmailVerificationPage> {
                           borderRadius: BorderRadius.circular(10),
                         )),
                     onPressed: () async {
-                      FirebaseAuth.instance
-                          .authStateChanges()
-                          .listen((User? user) {
-                        print(user);
-                        if (user!.emailVerified) {
-                          // here account created
-                          FirebaseFirestore.instance
-                              .collection('Users')
-                              .doc(user.uid)
-                              .set({
-                            'UserDetails': {
-                              'name': '${user.displayName}',
-                              'subtitle': ''
-                            }
-                          });
-                          Navigator.of(context)
-                              .push(MaterialPageRoute(builder: (ctx) {
-                            return ProfilePage();
-                          }));
-                        } else {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text("Email is not verified"),
-                            ),
-                          );
-                        }
-                      });
+                      bool isEmailVerified = false;
+                      FirebaseAuth.instance.currentUser?.reload();
+                      User? _currentUser = FirebaseAuth.instance.currentUser;
+                      print(_currentUser);
+                      isEmailVerified = _currentUser!.emailVerified;
+                      if (isEmailVerified) {
+                        // here account created
+                        FirebaseFirestore.instance
+                            .collection('Users')
+                            .doc(_currentUser.uid)
+                            .set({
+                          'UserDetails': {
+                            'name': '${_currentUser.displayName}',
+                          }
+                        });
+
+                        Navigator.of(context)
+                            .push(MaterialPageRoute(builder: (ctx) {
+                          return ProfilePage();
+                        }));
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text(
+                                "Email is not verified.Please visit you email for verification.If you already verified via email then please wait and try aftersome time."),
+                          ),
+                        );
+                      }
                     },
-                    child: Text(
+                    child: const Text(
                       'Continue',
                       style: TextStyle(color: Colors.black),
                     ),
