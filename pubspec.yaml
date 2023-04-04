@@ -1,0 +1,33 @@
+name: chat_app
+description: A new Flutter project.
+publish_to: 'none'
+version: 0.1.0
+
+environment:
+  sdk: '>=2.19.4 <3.0.0'
+
+dependencies:
+  cloud_firestore: ^4.4.5
+  country_code_picker: ^3.0.0
+  firebase_auth: ^4.3.0
+  firebase_core: ^2.8.0
+  firebase_storage: ^11.0.16
+  flutter:
+    sdk: flutter
+  flutter_pin_code_fields: ^1.1.0
+  font_awesome_flutter: ^10.4.0
+  google_fonts: ^4.0.3
+  image_picker: ^0.8.7
+  url_launcher: ^6.1.9
+
+
+dev_dependencies:
+  flutter_lints: ^2.0.0
+  flutter_test:
+    sdk: flutter
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - assets/
