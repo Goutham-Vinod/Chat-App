@@ -6,17 +6,17 @@ class CustomListTile extends StatelessWidget {
   CustomListTile(
       {this.title,
       this.subtitle,
-      this.image,
       this.onTapFunction,
       this.unReadMsgCount,
+      this.dpUrl,
       super.key});
   String? title, subtitle;
-
-  Image? image;
 
   Function? onTapFunction;
 
   int? unReadMsgCount;
+
+  String? dpUrl;
 
   @override
   Widget build(BuildContext context) {
@@ -35,10 +35,29 @@ class CustomListTile extends StatelessWidget {
             child: Row(
               children: [
                 Padding(
-                  padding: const EdgeInsets.only(left: 20),
-                  child:
-                      image ?? Image.asset('assets/default_dp.png', width: 60),
-                ),
+                    padding: const EdgeInsets.only(left: 20),
+                    child: Container(
+                      width: MediaQuery.of(context).size.width * 0.15,
+                      height: MediaQuery.of(context).size.width * 0.15,
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(100),
+                          image: DecorationImage(
+                              image: AssetImage('assets/default_dp.png'),
+                              fit: BoxFit.cover)),
+                      child: Container(
+                        width: MediaQuery.of(context).size.width * 0.15,
+                        height: MediaQuery.of(context).size.width * 0.15,
+                        decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(100),
+                            image: dpUrl != null
+                                ? DecorationImage(
+                                    image: NetworkImage(dpUrl!),
+                                    fit: BoxFit.cover)
+                                : DecorationImage(
+                                    image: AssetImage('assets/default_dp.png'),
+                                    fit: BoxFit.cover)),
+                      ),
+                    )),
                 SizedBox(width: 30),
                 SizedBox(
                   height: 60,

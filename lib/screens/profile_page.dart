@@ -19,12 +19,14 @@ class _ProfilePageState extends State<ProfilePage> {
   final user = FirebaseAuth.instance.currentUser;
   File? dpImage;
   TextEditingController nameController = TextEditingController();
+  String? downloadUrl;
 
   @override
   void initState() {
     if (user != null) {
       String name = user?.displayName ?? '';
       nameController.text = name;
+      downloadUrl = user?.photoURL;
     }
     super.initState();
   }
@@ -41,13 +43,46 @@ class _ProfilePageState extends State<ProfilePage> {
               SizedBox(
                   width: 150,
                   child: InkWell(
-                    onTap: () {
-                      getImageFromCamera(context);
+                    onTap: () async {
+                      await showPickImageBottomSheet(context);
                     },
                     child: Stack(
                       children: [
                         Container(
+                          width: MediaQuery.of(context).size.width * 0.4,
+                          height: MediaQuery.of(context).size.width * 0.4,
+                          decoration: BoxDecoration(
+                              image: DecorationImage(
+                                fit: BoxFit.cover,
+                                image: AssetImage('assets/default_dp.png'),
+                              ),
+                              borderRadius: BorderRadius.circular(100),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Color.fromARGB(255, 158, 158, 158)
+                                      .withOpacity(0.4),
+                                  spreadRadius: 10,
+                                  blurRadius: 8,
+                                  offset: Offset(0, 3),
+                                )
+                              ]),
+                          child: Container(
+                            width: MediaQuery.of(context).size.width * 0.4,
+                            height: MediaQuery.of(context).size.width * 0.4,
                             decoration: BoxDecoration(
+                                image: downloadUrl != null
+                                    ? DecorationImage(
+                                        fit: BoxFit.cover,
+                                        image: NetworkImage(downloadUrl!))
+                                    : dpImage != null
+                                        ? DecorationImage(
+                                            fit: BoxFit.cover,
+                                            image: FileImage(dpImage!))
+                                        : DecorationImage(
+                                            fit: BoxFit.cover,
+                                            image: AssetImage(
+                                                'assets/default_dp.png'),
+                                          ),
                                 borderRadius: BorderRadius.circular(100),
                                 boxShadow: [
                                   BoxShadow(
@@ -58,7 +93,8 @@ class _ProfilePageState extends State<ProfilePage> {
                                     offset: Offset(0, 3),
                                   )
                                 ]),
-                            child: Image.asset('assets/default_dp.png')),
+                          ),
+                        ),
                         Positioned(
                             bottom: 2,
                             right: 12,
@@ -111,11 +147,19 @@ class _ProfilePageState extends State<ProfilePage> {
                 height: 50,
                 child: ElevatedButton(
                     onPressed: () async {
-                      await FirebaseFirestore.instance
-                          .collection('Users')
-                          .doc('${FirebaseAuth.instance.currentUser?.uid}')
-                          .update(
-                              {'UserDetails.name': '${nameController.text}'});
+                      try {
+                        await FirebaseFirestore.instance
+                            .collection('Users')
+                            .doc('${FirebaseAuth.instance.currentUser?.uid}')
+                            .update(
+                                {'UserDetails.name': '${nameController.text}'});
+                      } catch (e) {
+                        await FirebaseFirestore.instance
+                            .collection('Users')
+                            .doc('${FirebaseAuth.instance.currentUser?.uid}')
+                            .set(
+                                {'UserDetails.name': '${nameController.text}'});
+                      }
 
                       user?.updateDisplayName(nameController.text);
 
@@ -136,5 +180,108 @@ class _ProfilePageState extends State<ProfilePage> {
         ),
       ),
     );
+  }
+
+  showPickImageBottomSheet(context) async {
+    await showModalBottomSheet<void>(
+      context: context,
+      builder: (BuildContext context) {
+        return SizedBox(
+          height: 200,
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                SizedBox(
+                  width: 260,
+                  child: ElevatedButton(
+                    onPressed: () async {
+                      dpImage = await getImageFromCamera(context);
+                      if (dpImage != null) {
+                        uploadDp();
+                      }
+                      Navigator.pop(context);
+                    },
+                    child: Text('Camera'),
+                    style: ElevatedButton.styleFrom(
+                        backgroundColor: mainRedColor,
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12.0))),
+                  ),
+                ),
+                SizedBox(
+                    width: 260,
+                    child: ElevatedButton(
+                        onPressed: () async {
+                          dpImage = await getImageFromGallery(context);
+                          if (dpImage != null) {
+                            uploadDp();
+                          }
+                          Navigator.pop(context);
+                        },
+                        style: ElevatedButton.styleFrom(
+                            backgroundColor: mainRedColor,
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12.0))),
+                        child: Text(
+                          'Gallery',
+                          style: TextStyle(fontSize: 18),
+                        ))),
+                SizedBox(
+                  width: 260,
+                  child: ElevatedButton(
+                    child: const Text('Delete Profile Photo'),
+                    style: ElevatedButton.styleFrom(
+                        backgroundColor: mainRedColor,
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12.0))),
+                    onPressed: () async {
+                      if (user?.photoURL != null) {
+                        deleteFileFromFirebase(user!.photoURL!);
+                        dpImage = null;
+                        downloadUrl = null;
+                        await FirebaseFirestore.instance
+                            .collection('Users')
+                            .doc('${FirebaseAuth.instance.currentUser?.uid}')
+                            .update({'UserDetails.dpUrl': '${downloadUrl}'});
+                        setState(() {});
+                      }
+                      Navigator.pop(context);
+                    },
+                  ),
+                ),
+                SizedBox(
+                  width: 260,
+                  child: ElevatedButton(
+                    child: const Text('Cancel'),
+                    style: ElevatedButton.styleFrom(
+                        backgroundColor: mainRedColor,
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12.0))),
+                    onPressed: () async {
+                      Navigator.pop(context);
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  uploadDp() async {
+    downloadUrl = await uploadFile(dpImage!);
+    print('downloadUrl is $downloadUrl');
+    await user?.updatePhotoURL(downloadUrl);
+    if (downloadUrl != null) {
+      await FirebaseFirestore.instance
+          .collection('Users')
+          .doc('${FirebaseAuth.instance.currentUser?.uid}')
+          .update({'UserDetails.dpUrl': '${downloadUrl}'});
+    }
+    setState(() {});
   }
 }

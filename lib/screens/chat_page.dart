@@ -74,7 +74,9 @@ class _ChatPageState extends State<ChatPage> {
                         print('inside list view');
                         final msg = msgs[index];
                         if (msg['isRecieved'] == true) {
-                          return RecieveMessageCard(message: msg['content']);
+                          return RecieveMessageCard(
+                              message: msg['content'],
+                              dpUrl: widget.friend.friendDp);
                         } else {
                           return SentMessageCard(message: msg['content']);
                         }

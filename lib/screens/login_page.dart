@@ -1,3 +1,4 @@
+import 'package:chat_app/screens/phone_number_input_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/src/widgets/placeholder.dart';
@@ -44,8 +45,11 @@ class LoginPage extends StatelessWidget {
                       )),
                   onPressed: () {
                     print('Not working');
-                    // Navigator.pushNamed(
-                    //     context, '/LoginPage/PhoneNumberInputPage');
+                    Navigator.push(context, MaterialPageRoute(
+                      builder: (context) {
+                        return PhoneNumberInputPage();
+                      },
+                    ));
                   },
                   child: Text(
                     "Use Phone Number",

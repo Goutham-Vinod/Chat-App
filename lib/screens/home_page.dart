@@ -61,18 +61,22 @@ class Home extends StatelessWidget {
                       title: streamSnapshot.data?.docs[index]
                           .data()['UserDetails']['name'],
                       subtitle: '',
+                      dpUrl: streamSnapshot.data?.docs[index]
+                          .data()['UserDetails']['dpUrl'],
                       onTapFunction: () {
                         FriendDetails friend = FriendDetails(
                             friendId: streamSnapshot.data?.docs[index].id ?? '',
                             friendName: streamSnapshot.data?.docs[index]
-                                .data()['UserDetails']['name']);
+                                .data()['UserDetails']['name'],
+                            friendDp: streamSnapshot.data?.docs[index]
+                                .data()['UserDetails']['dpUrl']);
 
                         Navigator.of(context)
                             .push(MaterialPageRoute(builder: (ctx) {
                           return ChatPage(friend: friend);
                         }));
                       },
-                      unReadMsgCount: 15,
+                      // unReadMsgCount: 15,
                     );
                   } else {
                     return Text('');

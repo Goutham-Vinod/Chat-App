@@ -3,8 +3,8 @@ import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/src/widgets/placeholder.dart';
 
 class RecieveMessageCard extends StatelessWidget {
-  RecieveMessageCard({required this.message, this.dpImage, super.key});
-  Image? dpImage;
+  RecieveMessageCard({required this.message, this.dpUrl, super.key});
+  String? dpUrl;
   String message;
   @override
   Widget build(BuildContext context) {
@@ -12,7 +12,18 @@ class RecieveMessageCard extends StatelessWidget {
       padding: const EdgeInsets.only(top: 25, left: 25),
       child: Row(
         children: [
-          dpImage ?? Image.asset('assets/default_dp.png', width: 40),
+          Container(
+            width: MediaQuery.of(context).size.width * 0.12,
+            height: MediaQuery.of(context).size.width * 0.12,
+            decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(100),
+                image: dpUrl != null
+                    ? DecorationImage(
+                        image: NetworkImage(dpUrl!), fit: BoxFit.cover)
+                    : DecorationImage(
+                        image: AssetImage('assets/default_dp.png'),
+                        fit: BoxFit.cover)),
+          ),
           SizedBox(width: 20),
           Container(
             decoration: BoxDecoration(

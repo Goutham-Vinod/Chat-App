@@ -1,14 +1,15 @@
+import 'package:chat_app/screens/profile_page.dart';
 import 'package:chat_app/widgets/terms_n_conditions.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/framework.dart';
-import 'package:flutter/src/widgets/placeholder.dart';
 import 'package:flutter_pin_code_fields/flutter_pin_code_fields.dart';
 
 import '../common.dart';
 
 class OtpVerificationPage extends StatelessWidget {
-  const OtpVerificationPage({super.key});
-
+  OtpVerificationPage({required this.verificationId, super.key});
+  String verificationId;
+  String? otp;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -32,7 +33,7 @@ class OtpVerificationPage extends StatelessWidget {
           SizedBox(
             width: 300,
             child: Text(
-              'Enter 4-digit code we have sent to you at +0 000 000 0000',
+              'Enter 6-digit code we have sent to you at +0 000 000 0000',
               style: TextStyle(fontSize: 16),
             ),
           ),
@@ -41,15 +42,16 @@ class OtpVerificationPage extends StatelessWidget {
             child: SizedBox(
               width: 300,
               child: PinCodeFields(
-                length: 4,
+                length: 6,
                 fieldBorderStyle: FieldBorderStyle.square,
-                fieldHeight: 60,
+                fieldHeight: 50,
                 borderWidth: 1.0,
                 activeBorderColor: mainRedColor,
                 borderRadius: BorderRadius.circular(12),
                 keyboardType: TextInputType.number,
                 onComplete: (value) {
-                  print('Completed');
+                  print('Completed $value');
+                  otp = value;
                 },
               ),
             ),
@@ -61,8 +63,21 @@ class OtpVerificationPage extends StatelessWidget {
                   height: 55,
                   child: ElevatedButton(
                       onPressed: () {
-                        Navigator.pushNamed(context,
-                            '/LoginPage/PhoneNumberInputPage/OtpVerificationPage/BuildProfile');
+                        if (otp != null) {
+                          try {
+                            final _credential = PhoneAuthProvider.credential(
+                                verificationId: verificationId, smsCode: otp!);
+                            FirebaseAuth.instance
+                                .signInWithCredential(_credential)
+                                .then((result) {
+                              Navigator.push(context, MaterialPageRoute(
+                                builder: (context) {
+                                  return ProfilePage();
+                                },
+                              ));
+                            });
+                          } catch (e) {}
+                        }
                       },
                       style: ElevatedButton.styleFrom(
                           backgroundColor: mainRedColor,

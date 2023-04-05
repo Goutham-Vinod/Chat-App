@@ -35,8 +35,7 @@ class MainApp extends StatelessWidget {
         '/SplashScreen': (context) => SplashScreen(),
         '/LoginPage': (context) => LoginPage(),
         // '/LoginPage/PhoneNumberInputPage': (context) => PhoneNumberInputPage(),
-        '/LoginPage/PhoneNumberInputPage/OtpVerificationPage': (context) =>
-            OtpVerificationPage(),
+
         '/LoginPage/EmailLoginPage': (context) => EmailLoginPage(),
         // '/LoginPage/PhoneNumberInputPage/OtpVerificationPage/BuildProfile':
         //     (context) => BuildProfile(),
